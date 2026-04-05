@@ -2,6 +2,8 @@
 
 Stackydo includes an MCP (Model Context Protocol) server that gives AI assistants full access to your task store. The `stackydo-mcp` binary communicates over stdio and works with any MCP-compatible client.
 
+**No install required?** If you have Node.js, you can use npx in any MCP config instead of installing the binary. Just use `"command": "npx"` with `"args": ["-y", "@kythin/stackydo-mcp"]` wherever you see `"command": "stackydo-mcp"` below.
+
 ## Claude Code (CLI / VS Code / JetBrains)
 
 One command:
