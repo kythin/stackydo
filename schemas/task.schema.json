@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Stackydo Task",
+  "description": "YAML frontmatter schema for stackydo task files.",
+  "type": "object",
+  "properties": {
+    "comments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Comment"
+      }
+    },
+    "context": {
+      "$ref": "#/$defs/ContextInfo",
+      "default": {
+        "working_dir": ""
+      }
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Dependency"
+      }
+    },
+    "due": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "id": {
+      "type": "string"
+    },
+    "index": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "uint32",
+      "minimum": 0
+    },
+    "modified": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "parent_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "priority": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Priority"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "short_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "stack": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string"
+    },
+    "subtask_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "title": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "status",
+    "created",
+    "modified"
+  ],
+  "$defs": {
+    "Comment": {
+      "description": "A structured comment on a task",
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ts",
+        "text"
+      ]
+    },
+    "ContextInfo": {
+      "description": "Context captured automatically at task creation time",
+      "type": "object",
+      "properties": {
+        "column": {
+          "description": "Column position in the context file",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0
+        },
+        "git_branch": {
+          "description": "Git branch at creation time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "git_commit": {
+          "description": "Git commit hash (short)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "git_remote": {
+          "description": "Git remote URL",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "line": {
+          "description": "Line number in the context file",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0
+        },
+        "lookfor": {
+          "description": "Regex pattern to locate relevant section in context file",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "description": "The file or directory path this task relates to",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "session_prev_task_id": {
+          "description": "ID of the previous task created in the same shell session",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "todo_context_content": {
+          "description": "Content from nearest stackydo.json context.description field",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "working_dir": {
+          "description": "Working directory at creation time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "working_dir"
+      ]
+    },
+    "Dependency": {
+      "description": "A dependency link to another task",
+      "type": "object",
+      "properties": {
+        "dep_type": {
+          "$ref": "#/$defs/DependencyType"
+        },
+        "task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "dep_type"
+      ]
+    },
+    "DependencyType": {
+      "description": "Relationship type between tasks",
+      "type": "string",
+      "enum": [
+        "blocked_by",
+        "blocks",
+        "related_to"
+      ]
+    },
+    "Priority": {
+      "description": "Priority levels (ordered high to low)",
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ]
+    }
+  }
+}
