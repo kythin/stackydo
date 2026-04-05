@@ -2,6 +2,21 @@
 
 All install methods provide two binaries: `stackydo` (CLI) and `stackydo-mcp` (MCP server).
 
+## npm (any platform)
+
+If you have Node.js installed, this is the simplest cross-platform option:
+
+```bash
+npm install -g @kythin/stackydo
+```
+
+You can also use npx to run without installing (useful for MCP configs):
+
+```bash
+npx -y @kythin/stackydo --version
+npx -y @kythin/stackydo-mcp
+```
+
 ## macOS
 
 **Homebrew** (recommended):
