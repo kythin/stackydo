@@ -51,6 +51,9 @@ curl --proto '=https' --tlsv1.2 -LsSf https://github.com/kythin/stackydo/release
 
 # Windows (PowerShell)
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/kythin/stackydo/releases/latest/download/stackydo-installer.ps1 | iex"
+
+# npm (any platform — also works with npx for MCP configs)
+npm install -g @kythin/stackydo
 ```
 
 This installs two binaries: `stackydo` (CLI) and `stackydo-mcp` (MCP server).
@@ -76,6 +79,12 @@ Give your AI assistant full access to your task store. Setup is one command for 
 
 ```bash
 stackydo mcp-setup
+```
+
+Or use npx in any MCP config without installing first:
+
+```json
+{ "command": "npx", "args": ["-y", "@kythin/stackydo-mcp"] }
 ```
 
 For Claude Desktop, Cursor, VS Code, Codex, Windsurf, and manual config, see the [MCP Setup Guide](docs/mcp-setup.md).
