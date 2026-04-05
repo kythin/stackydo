@@ -1,0 +1,424 @@
+name: Build Release
+
+on:
+  repository_dispatch:
+    types: [release-build]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.9.2)"
+        required: true
+      private_repo:
+        description: "Private source repo (e.g. kythin/stackydo-cli)"
+        required: true
+        default: "kythin/stackydo-cli"
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.client_payload.tag || github.event.inputs.tag }}
+  PRIVATE_REPO: ${{ github.event.client_payload.private_repo || github.event.inputs.private_repo }}
+
+jobs:
+  plan:
+    runs-on: ubuntu-22.04
+    outputs:
+      val: ${{ steps.plan.outputs.manifest }}
+      tag-flag: --tag=${{ github.event.client_payload.tag || github.event.inputs.tag }}
+      publishing: "true"
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout private source
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.PRIVATE_REPO }}
+          ref: ${{ env.TAG }}
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          persist-credentials: false
+          submodules: recursive
+      - name: Install dist
+        shell: bash
+        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.sh | sh"
+      - name: Cache dist
+        uses: actions/upload-artifact@v6
+        with:
+          name: cargo-dist-cache
+          path: ~/.cargo/bin/dist
+      - id: plan
+        run: |
+          dist host --steps=create --tag=${{ env.TAG }} --output-format=json > plan-dist-manifest.json
+          echo "dist ran successfully"
+          cat plan-dist-manifest.json
+          echo "manifest=$(jq -c "." plan-dist-manifest.json)" >> "$GITHUB_OUTPUT"
+      - name: Upload dist-manifest.json
+        uses: actions/upload-artifact@v6
+        with:
+          name: artifacts-plan-dist-manifest
+          path: plan-dist-manifest.json
+
+  build-local-artifacts:
+    name: build-local-artifacts (${{ join(matrix.targets, ', ') }})
+    needs:
+      - plan
+    if: ${{ fromJson(needs.plan.outputs.val).ci.github.artifacts_matrix.include != null }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.val).ci.github.artifacts_matrix }}
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container && matrix.container.image || null }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BUILD_MANIFEST_NAME: target/distrib/${{ join(matrix.targets, '-') }}-dist-manifest.json
+    steps:
+      - name: enable windows longpaths
+        run: |
+          git config --global core.longpaths true
+      - name: Checkout private source
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.PRIVATE_REPO }}
+          ref: ${{ env.TAG }}
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          persist-credentials: false
+          submodules: recursive
+      - name: Install Rust non-interactively if not already installed
+        if: ${{ matrix.container }}
+        run: |
+          if ! command -v cargo > /dev/null 2>&1; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          fi
+      - name: Install dist
+        run: ${{ matrix.install_dist.run }}
+      - name: Fetch local artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: artifacts-*
+          path: target/distrib/
+          merge-multiple: true
+      - name: Install dependencies
+        run: |
+          ${{ matrix.packages_install }}
+      - name: Build artifacts
+        run: |
+          dist build ${{ needs.plan.outputs.tag-flag }} --print=linkage --output-format=json ${{ matrix.dist_args }} > dist-manifest.json
+          echo "dist ran successfully"
+      - id: cargo-dist
+        name: Post-build
+        shell: bash
+        run: |
+          echo "paths<<EOF" >> "$GITHUB_OUTPUT"
+          dist print-upload-files-from-manifest --manifest dist-manifest.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          cp dist-manifest.json "$BUILD_MANIFEST_NAME"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: artifacts-build-local-${{ join(matrix.targets, '_') }}
+          path: |
+            ${{ steps.cargo-dist.outputs.paths }}
+            ${{ env.BUILD_MANIFEST_NAME }}
+
+  build-global-artifacts:
+    needs:
+      - plan
+      - build-local-artifacts
+    runs-on: ubuntu-22.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BUILD_MANIFEST_NAME: target/distrib/global-dist-manifest.json
+    steps:
+      - name: Checkout private source
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.PRIVATE_REPO }}
+          ref: ${{ env.TAG }}
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          persist-credentials: false
+          submodules: recursive
+      - name: Install cached dist
+        uses: actions/download-artifact@v7
+        with:
+          name: cargo-dist-cache
+          path: ~/.cargo/bin/
+      - run: chmod +x ~/.cargo/bin/dist
+      - name: Fetch local artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: artifacts-*
+          path: target/distrib/
+          merge-multiple: true
+      - id: cargo-dist
+        shell: bash
+        run: |
+          dist build ${{ needs.plan.outputs.tag-flag }} --output-format=json "--artifacts=global" > dist-manifest.json
+          echo "dist ran successfully"
+
+          echo "paths<<EOF" >> "$GITHUB_OUTPUT"
+          jq --raw-output ".upload_files[]" dist-manifest.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          cp dist-manifest.json "$BUILD_MANIFEST_NAME"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: artifacts-build-global
+          path: |
+            ${{ steps.cargo-dist.outputs.paths }}
+            ${{ env.BUILD_MANIFEST_NAME }}
+
+  host:
+    needs:
+      - plan
+      - build-local-artifacts
+      - build-global-artifacts
+    if: ${{ always() && needs.plan.result == 'success' && (needs.build-global-artifacts.result == 'skipped' || needs.build-global-artifacts.result == 'success') && (needs.build-local-artifacts.result == 'skipped' || needs.build-local-artifacts.result == 'success') }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-22.04
+    outputs:
+      val: ${{ steps.host.outputs.manifest }}
+    steps:
+      - name: Checkout private source
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.PRIVATE_REPO }}
+          ref: ${{ env.TAG }}
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          persist-credentials: false
+          submodules: recursive
+      - name: Install cached dist
+        uses: actions/download-artifact@v7
+        with:
+          name: cargo-dist-cache
+          path: ~/.cargo/bin/
+      - run: chmod +x ~/.cargo/bin/dist
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: artifacts-*
+          path: target/distrib/
+          merge-multiple: true
+      - id: host
+        shell: bash
+        run: |
+          dist host ${{ needs.plan.outputs.tag-flag }} --steps=upload --steps=release --output-format=json > dist-manifest.json
+          echo "artifacts uploaded and released successfully"
+          cat dist-manifest.json
+          echo "manifest=$(jq -c "." dist-manifest.json)" >> "$GITHUB_OUTPUT"
+      - name: Upload dist-manifest.json
+        uses: actions/upload-artifact@v6
+        with:
+          name: artifacts-dist-manifest
+          path: dist-manifest.json
+      - name: Download GitHub Artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: artifacts-*
+          path: artifacts
+          merge-multiple: true
+      - name: Cleanup
+        run: |
+          rm -f artifacts/*-dist-manifest.json
+      - name: Patch installer scripts
+        run: |
+          for f in artifacts/*-installer.sh artifacts/*-installer.ps1; do
+            [ -f "$f" ] && sed -i "s|${{ env.PRIVATE_REPO }}|${{ github.repository }}|g" "$f"
+          done
+      - name: Create GitHub Release
+        env:
+          PRERELEASE_FLAG: "${{ fromJson(steps.host.outputs.manifest).announcement_is_prerelease && '--prerelease' || '' }}"
+          ANNOUNCEMENT_TITLE: "${{ fromJson(steps.host.outputs.manifest).announcement_title }}"
+          ANNOUNCEMENT_BODY: "${{ fromJson(steps.host.outputs.manifest).announcement_github_body }}"
+        run: |
+          echo "$ANNOUNCEMENT_BODY" > $RUNNER_TEMP/notes.txt
+
+          gh release create "${{ env.TAG }}" --target "main" $PRERELEASE_FLAG --title "$ANNOUNCEMENT_TITLE" --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*
+
+  publish-npm:
+    needs:
+      - plan
+      - host
+    runs-on: ubuntu-22.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PLAN: ${{ needs.plan.outputs.val }}
+    if: ${{ !fromJson(needs.plan.outputs.val).announcement_is_prerelease || fromJson(needs.plan.outputs.val).publish_prereleases }}
+    steps:
+      - name: Fetch npm packages
+        uses: actions/download-artifact@v7
+        with:
+          pattern: artifacts-*
+          path: npm/
+          merge-multiple: true
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: |
+          for release in $(echo "$PLAN" | jq --compact-output '.releases[] | select([.artifacts[] | endswith("-npm-package.tar.gz")] | any)'); do
+            pkg=$(echo "$release" | jq '.artifacts[] | select(endswith("-npm-package.tar.gz"))' --raw-output)
+            npm publish --access public "./npm/${pkg}"
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  update-homebrew-tap:
+    needs:
+      - host
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private source for config
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.PRIVATE_REPO }}
+          ref: ${{ env.TAG }}
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          sparse-checkout: .homebrew-tap.json
+          sparse-checkout-cone-mode: false
+
+      - name: Update homebrew tap formula
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_PUBLIC_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          CONFIG=".homebrew-tap.json"
+          NAME=$(jq -r '.name' "$CONFIG")
+          PUBLIC_REPO=$(jq -r '.public_repo // .repo' "$CONFIG")
+          DESC=$(jq -r '.desc' "$CONFIG")
+          LICENSE=$(jq -r '.license' "$CONFIG")
+          ARCHIVE_EXT=$(jq -r '.archive_ext' "$CONFIG")
+          ARCHIVE_PATTERN=$(jq -r '.archive_pattern' "$CONFIG")
+          readarray -t TARGETS < <(jq -r '.targets[]' "$CONFIG")
+          readarray -t BINARIES < <(jq -r '.binaries[]' "$CONFIG")
+
+          TAP_REPO="kythin/homebrew-tap"
+          VERSION="${{ env.TAG }}"
+          CLEAN_VERSION="${VERSION#v}"
+
+          echo "Updating ${NAME} ${VERSION} in ${TAP_REPO}..."
+
+          # Download release archives from this (public) repo's release
+          mkdir -p artifacts
+          gh release download "$VERSION" \
+            --repo "${{ github.repository }}" \
+            --pattern "*.${ARCHIVE_EXT}" \
+            --dir artifacts
+
+          # Compute SHAs
+          declare -A SHA_MAP
+          for TARGET in "${TARGETS[@]}"; do
+            FNAME=$(echo "$ARCHIVE_PATTERN" | sed "s/{name}/${NAME}/g; s/{target}/${TARGET}/g; s/{ext}/${ARCHIVE_EXT}/g")
+            FILE="artifacts/${FNAME}"
+            if [ ! -f "$FILE" ]; then
+              FILE=$(find artifacts -name "*${TARGET}*" -type f | head -1)
+            fi
+            if [ ! -f "$FILE" ]; then
+              echo "WARNING: archive not found for target ${TARGET}"
+              continue
+            fi
+            SHA_MAP[$TARGET]=$(sha256sum "$FILE" | cut -d ' ' -f 1)
+            echo "${TARGET}: ${SHA_MAP[$TARGET]}"
+          done
+
+          CLASS_NAME="$(echo "${NAME:0:1}" | tr '[:lower:]' '[:upper:]')${NAME:1}"
+          DOWNLOAD_BASE="https://github.com/${PUBLIC_REPO}/releases/download/${VERSION}"
+
+          target_os() {
+            case "$1" in
+              *apple-darwin*) echo "macos" ;;
+              *linux*)        echo "linux" ;;
+            esac
+          }
+          target_arch() {
+            case "$1" in
+              aarch64-*) echo "arm" ;;
+              x86_64-*)  echo "intel" ;;
+            esac
+          }
+
+          # Generate formula with direct download URLs (no asset IDs, no auth headers)
+          {
+            echo "class ${CLASS_NAME} < Formula"
+            echo "  desc \"${DESC}\""
+            echo "  homepage \"https://github.com/${PUBLIC_REPO}\""
+            echo "  version \"${CLEAN_VERSION}\""
+            echo "  license \"${LICENSE}\""
+
+            MAC_TARGETS=()
+            LINUX_TARGETS=()
+            for TARGET in "${TARGETS[@]}"; do
+              case $(target_os "$TARGET") in
+                macos) MAC_TARGETS+=("$TARGET") ;;
+                linux) LINUX_TARGETS+=("$TARGET") ;;
+              esac
+            done
+
+            if [ ${#MAC_TARGETS[@]} -gt 0 ]; then
+              echo ""
+              echo "  on_macos do"
+              FIRST=true
+              for TARGET in "${MAC_TARGETS[@]}"; do
+                FNAME=$(echo "$ARCHIVE_PATTERN" | sed "s/{name}/${NAME}/g; s/{target}/${TARGET}/g; s/{ext}/${ARCHIVE_EXT}/g")
+                ARCH=$(target_arch "$TARGET")
+                if [ "$ARCH" = "arm" ]; then COND="Hardware::CPU.arm?"; else COND="Hardware::CPU.intel?"; fi
+                if [ "$FIRST" = true ]; then echo "    if ${COND}"; FIRST=false; else echo "    elsif ${COND}"; fi
+                echo "      url \"${DOWNLOAD_BASE}/${FNAME}\""
+                echo "      sha256 \"${SHA_MAP[$TARGET]}\""
+              done
+              echo "    end"
+              echo "  end"
+            fi
+
+            if [ ${#LINUX_TARGETS[@]} -gt 0 ]; then
+              echo ""
+              echo "  on_linux do"
+              FIRST=true
+              for TARGET in "${LINUX_TARGETS[@]}"; do
+                FNAME=$(echo "$ARCHIVE_PATTERN" | sed "s/{name}/${NAME}/g; s/{target}/${TARGET}/g; s/{ext}/${ARCHIVE_EXT}/g")
+                ARCH=$(target_arch "$TARGET")
+                if [ "$ARCH" = "arm" ]; then COND="Hardware::CPU.arm?"; else COND="Hardware::CPU.intel?"; fi
+                if [ "$FIRST" = true ]; then echo "    if ${COND}"; FIRST=false; else echo "    elsif ${COND}"; fi
+                echo "      url \"${DOWNLOAD_BASE}/${FNAME}\""
+                echo "      sha256 \"${SHA_MAP[$TARGET]}\""
+              done
+              echo "    end"
+              echo "  end"
+            fi
+
+            echo ""
+            echo "  def install"
+            for BIN in "${BINARIES[@]}"; do
+              echo "    bin.install \"${BIN}\""
+            done
+            echo "  end"
+
+            echo ""
+            echo "  test do"
+            echo "    assert_match version.to_s, shell_output(\"#{bin}/${NAME} --version\")"
+            echo "  end"
+            echo "end"
+          } > "${NAME}.rb"
+
+          echo "Generated formula:"
+          cat "${NAME}.rb"
+
+          # Push formula to tap repo
+          EXISTING_SHA=$(gh api "repos/${TAP_REPO}/contents/Formula/${NAME}.rb" --jq '.sha' 2>/dev/null || echo "")
+          CONTENT=$(base64 -w 0 "${NAME}.rb")
+
+          ARGS=("repos/${TAP_REPO}/contents/Formula/${NAME}.rb"
+            --method PUT
+            -f "message=Update ${NAME} to ${VERSION}"
+            -f "content=${CONTENT}"
+            --silent)
+          if [ -n "$EXISTING_SHA" ]; then
+            ARGS+=(-f "sha=${EXISTING_SHA}")
+          fi
+
+          gh api "${ARGS[@]}"
+          echo "${NAME} ${VERSION} pushed to ${TAP_REPO} successfully"
