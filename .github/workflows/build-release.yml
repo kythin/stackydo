@@ -26,7 +26,6 @@ jobs:
     outputs:
       val: ${{ steps.plan.outputs.manifest }}
       tag-flag: --tag=${{ github.event.client_payload.tag || github.event.inputs.tag }}
-      publishing: "true"
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -48,7 +47,7 @@ jobs:
           path: ~/.cargo/bin/dist
       - id: plan
         run: |
-          dist host --steps=create --tag=${{ env.TAG }} --output-format=json > plan-dist-manifest.json
+          dist plan --tag=${{ env.TAG }} --output-format=json > plan-dist-manifest.json
           echo "dist ran successfully"
           cat plan-dist-manifest.json
           echo "manifest=$(jq -c "." plan-dist-manifest.json)" >> "$GITHUB_OUTPUT"
@@ -170,7 +169,7 @@ jobs:
             ${{ steps.cargo-dist.outputs.paths }}
             ${{ env.BUILD_MANIFEST_NAME }}
 
-  host:
+  create-release:
     needs:
       - plan
       - build-local-artifacts
@@ -178,49 +177,16 @@ jobs:
     if: ${{ always() && needs.plan.result == 'success' && (needs.build-global-artifacts.result == 'skipped' || needs.build-global-artifacts.result == 'success') && (needs.build-local-artifacts.result == 'skipped' || needs.build-local-artifacts.result == 'success') }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PLAN: ${{ needs.plan.outputs.val }}
     runs-on: ubuntu-22.04
-    outputs:
-      val: ${{ steps.host.outputs.manifest }}
     steps:
-      - name: Checkout private source
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ env.PRIVATE_REPO }}
-          ref: ${{ env.TAG }}
-          token: ${{ secrets.PRIVATE_REPO_PAT }}
-          persist-credentials: false
-          submodules: recursive
-      - name: Install cached dist
-        uses: actions/download-artifact@v7
-        with:
-          name: cargo-dist-cache
-          path: ~/.cargo/bin/
-      - run: chmod +x ~/.cargo/bin/dist
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v7
-        with:
-          pattern: artifacts-*
-          path: target/distrib/
-          merge-multiple: true
-      - id: host
-        shell: bash
-        run: |
-          dist host ${{ needs.plan.outputs.tag-flag }} --steps=upload --steps=release --output-format=json > dist-manifest.json
-          echo "artifacts uploaded and released successfully"
-          cat dist-manifest.json
-          echo "manifest=$(jq -c "." dist-manifest.json)" >> "$GITHUB_OUTPUT"
-      - name: Upload dist-manifest.json
-        uses: actions/upload-artifact@v6
-        with:
-          name: artifacts-dist-manifest
-          path: dist-manifest.json
-      - name: Download GitHub Artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v7
         with:
           pattern: artifacts-*
           path: artifacts
           merge-multiple: true
-      - name: Cleanup
+      - name: Cleanup manifests
         run: |
           rm -f artifacts/*-dist-manifest.json
       - name: Patch installer scripts
@@ -228,20 +194,24 @@ jobs:
           for f in artifacts/*-installer.sh artifacts/*-installer.ps1; do
             [ -f "$f" ] && sed -i "s|${{ env.PRIVATE_REPO }}|${{ github.repository }}|g" "$f"
           done
+      - name: Patch release body URLs
+        run: |
+          BODY=$(echo "$PLAN" | jq -r '.announcement_github_body // ""')
+          echo "$BODY" | sed "s|${{ env.PRIVATE_REPO }}|${{ github.repository }}|g" > "$RUNNER_TEMP/release-notes.md"
       - name: Create GitHub Release
         env:
-          PRERELEASE_FLAG: "${{ fromJson(steps.host.outputs.manifest).announcement_is_prerelease && '--prerelease' || '' }}"
-          ANNOUNCEMENT_TITLE: "${{ fromJson(steps.host.outputs.manifest).announcement_title }}"
-          ANNOUNCEMENT_BODY: "${{ fromJson(steps.host.outputs.manifest).announcement_github_body }}"
+          PRERELEASE_FLAG: "${{ fromJson(needs.plan.outputs.val).announcement_is_prerelease && '--prerelease' || '' }}"
+          ANNOUNCEMENT_TITLE: "${{ fromJson(needs.plan.outputs.val).announcement_title }}"
         run: |
-          echo "$ANNOUNCEMENT_BODY" > $RUNNER_TEMP/notes.txt
-
-          gh release create "${{ env.TAG }}" --target "main" $PRERELEASE_FLAG --title "$ANNOUNCEMENT_TITLE" --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*
+          gh release create "${{ env.TAG }}" --target "main" $PRERELEASE_FLAG \
+            --title "$ANNOUNCEMENT_TITLE" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            artifacts/*
 
   publish-npm:
     needs:
       - plan
-      - host
+      - create-release
     runs-on: ubuntu-22.04
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -268,7 +238,7 @@ jobs:
 
   update-homebrew-tap:
     needs:
-      - host
+      - create-release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout private source for config
@@ -341,7 +311,6 @@ jobs:
             esac
           }
 
-          # Generate formula with direct download URLs (no asset IDs, no auth headers)
           {
             echo "class ${CLASS_NAME} < Formula"
             echo "  desc \"${DESC}\""
@@ -407,7 +376,6 @@ jobs:
           echo "Generated formula:"
           cat "${NAME}.rb"
 
-          # Push formula to tap repo
           EXISTING_SHA=$(gh api "repos/${TAP_REPO}/contents/Formula/${NAME}.rb" --jq '.sha' 2>/dev/null || echo "")
           CONTENT=$(base64 -w 0 "${NAME}.rb")
 
