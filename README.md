@@ -43,22 +43,16 @@ A `.stackydo-context` file at the project root tells stackydo which mode to use.
 ## Install
 
 ```bash
-# macOS / Linux (Homebrew)
-brew tap kythin/homebrew-tap && brew install stackydo
-
-# macOS / Linux (shell installer)
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/kythin/stackydo/releases/latest/download/stackydo-installer.sh | sh
-
-# Windows (PowerShell)
-powershell -ExecutionPolicy ByPass -c "irm https://github.com/kythin/stackydo/releases/latest/download/stackydo-installer.ps1 | iex"
-
-# npm (any platform — also works with npx for MCP configs)
+# npm (any platform)
 npm install -g @kythin/stackydo
+
+# Homebrew (macOS / Linux)
+brew tap kythin/homebrew-tap && brew install stackydo
 ```
 
 This installs two binaries: `stackydo` (CLI) and `stackydo-mcp` (MCP server).
 
-For manual downloads, platform-specific notes, and update instructions, see the [Install Guide](docs/install.md).
+For shell/PowerShell installers, manual downloads, and other options, see the [Install Guide](docs/install.md).
 
 ## Quick start
 
