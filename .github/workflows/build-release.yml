@@ -180,6 +180,8 @@ jobs:
       PLAN: ${{ needs.plan.outputs.val }}
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout public repo
+        uses: actions/checkout@v6
       - name: Download all artifacts
         uses: actions/download-artifact@v7
         with:
