@@ -2,12 +2,18 @@
 
 All install methods provide two binaries: `stackydo` (CLI) and `stackydo-mcp` (MCP server).
 
-## npm (any platform)
+## npm (recommended, any platform)
 
-If you have Node.js installed, this is the simplest cross-platform option:
+The quickest way to install on any OS with Node.js:
 
 ```bash
 npm install -g @kythin/stackydo
+```
+
+Update:
+
+```bash
+npm update -g @kythin/stackydo
 ```
 
 You can also use npx to run without installing (useful for MCP configs):
@@ -19,7 +25,7 @@ npx -y @kythin/stackydo-mcp
 
 ## macOS
 
-**Homebrew** (recommended):
+**Homebrew**:
 
 ```bash
 brew tap kythin/homebrew-tap && brew install stackydo
@@ -72,13 +78,16 @@ powershell -ExecutionPolicy ByPass -c "irm https://github.com/kythin/stackydo/re
 ## Update
 
 ```bash
+# npm
+npm update -g @kythin/stackydo
+
 # Homebrew
 brew update && brew upgrade stackydo
 
 # Shell/PowerShell installer
 stackydo-update
 
-# Or re-run the installer. It will overwrite the existing version.
+# Or re-run any installer. It will overwrite the existing version.
 ```
 
 ## Verify
