@@ -17,6 +17,7 @@
 | `context` | Preview what context would be captured for a new task |
 | `init` | Initialize a new workspace (optionally with `--here` and `--git`) |
 | `doctor` | Diagnose and optionally fix workspace issues |
+| `bulk-status` | Move all tasks matching a status (and optional filters) to a new status |
 | `shuffle` | Randomise the order of tasks in a stack+status group |
 | `draw` | Draw the top task from one group and move it to another |
 | `list-workspaces` | Discover all stackydo workspaces on the system |
@@ -85,3 +86,20 @@ Tasks within the same stack+status group have an `index` field for positional or
 stackydo shuffle --stack ideas --status deck
 stackydo draw --source ideas/deck --target ideas/hand
 ```
+
+### Bulk Status Updates
+
+Move all tasks matching a status to a new status in one command:
+
+```bash
+# Move all "todo" tasks in work to "in_progress"
+stackydo bulk-status --from todo --to in_progress --stack work
+
+# Preview without applying
+stackydo bulk-status --from in_progress --to done --tag sprint-3 --dry-run
+
+# Skip confirmation
+stackydo bulk-status --from todo --to in_progress --stack work --yes
+```
+
+Filters: `--stack`, `--tag`, `--priority`. Status is validated against each affected stack's workflow.
