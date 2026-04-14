@@ -28,7 +28,7 @@ You choose. Stackydo doesn't force a single model.
   .stackydo-workspace/      ← stackydo workspace here
 ```
 
-A `.stackydo-context` file at the project root tells stackydo which mode to use. Or set `$STACKYDO_DIR` to point anywhere you like. See [Workspaces](docs/workspaces.md) for the full details.
+A `stackydo.json` file at the project root tells stackydo which mode to use, and is also where you customise workflows, per-stack workflow assignments, and project context. Or set `$STACKYDO_DIR` to point anywhere you like. See [Workspaces](docs/workspaces.md) and [Configuration](docs/config.md) for the full details.
 
 ## What it does
 
@@ -89,8 +89,10 @@ For Claude Desktop, Cursor, VS Code, Codex, Windsurf, and manual config, see the
 |-------|-------------|
 | [Install](docs/install.md) | Platform-specific install, manual downloads, updating |
 | [MCP Setup](docs/mcp-setup.md) | Connect stackydo to Claude, Cursor, VS Code, Codex, Windsurf |
-| [CLI Reference](docs/cli-reference.md) | All commands, stacks, workflows, deck mode |
-| [Workspaces](docs/workspaces.md) | Storage modes, `.stackydo-context`, multi-workspace, task format |
+| [CLI Reference](docs/cli-reference.md) | All commands, stacks, quick reference |
+| [Configuration](docs/config.md) | The `stackydo.json` file: every field, examples, schema |
+| [Workflows](docs/workflows.md) | Stages, built-in workflows, custom workflows, per-stack assignment, index ordering |
+| [Workspaces](docs/workspaces.md) | Storage modes, workspace discovery, multi-workspace, task format |
 | [AI Agents](docs/ai-agents.md) | Agent setup, MCP tools, playbooks for coding agents |
 
 ## Issues & Feedback
