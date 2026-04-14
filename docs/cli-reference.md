@@ -43,63 +43,14 @@ Tasks without a stack are unstacked and won't appear in stack-filtered results.
 
 ## Workflows
 
-Workflows define the statuses available to tasks and how they map to lifecycle stages (backlog, active, archive). Each stack can use a different workflow.
+Workflows define the statuses available to tasks and how they map to lifecycle stages (`backlog`, `active`, `archive`). Stackydo ships with two built-in workflows — `kanban` (default) and `deck` — and you can define custom statuses and per-stack assignments in [`stackydo.json`](config.md).
 
-### Kanban (default)
+For the complete guide — built-in workflows, custom workflows, per-stack assignment, index ordering, shuffle/draw, bulk-status, and cross-stack moves — see [**Workflows**](workflows.md).
 
-| Stage | Statuses |
-|-------|----------|
-| Backlog | `todo`, `on_hold` |
-| Active | `in_progress`, `blocked`, `in_review` |
-| Archive | `done`, `cancelled` |
+Quick reference for the built-in `kanban` workflow:
 
-### Deck
-
-A card game metaphor for randomised or prioritised work.
-
-| Stage | Statuses |
-|-------|----------|
-| Backlog | `deck` |
-| Active | `hand`, `table` |
-| Archive | `discard` |
-
-### Per-stack assignment
-
-Set a stack's workflow in `manifest.json`:
-
-```json
-{
-  "stack_workflows": {
-    "ideas": "deck",
-    "work": "kanban"
-  }
-}
-```
-
-Stacks without a workflow inherit the workspace default (kanban).
-
-### Index ordering
-
-Tasks within the same stack+status group have an `index` field for positional ordering. Indexes are maintained automatically. Use `shuffle` to randomise order, and `draw` to pull the top task from one group to another:
-
-```bash
-stackydo shuffle --stack ideas --status deck
-stackydo draw --source ideas/deck --target ideas/hand
-```
-
-### Bulk Status Updates
-
-Move all tasks matching a status to a new status in one command:
-
-```bash
-# Move all "todo" tasks in work to "in_progress"
-stackydo bulk-status --from todo --to in_progress --stack work
-
-# Preview without applying
-stackydo bulk-status --from in_progress --to done --tag sprint-3 --dry-run
-
-# Skip confirmation
-stackydo bulk-status --from todo --to in_progress --stack work --yes
-```
-
-Filters: `--stack`, `--tag`, `--priority`. Status is validated against each affected stack's workflow.
+| Stage     | Statuses                                  |
+|-----------|-------------------------------------------|
+| `backlog` | `todo`, `on_hold`                         |
+| `active`  | `in_progress`, `blocked`, `in_review`     |
+| `archive` | `done`, `cancelled`                       |
