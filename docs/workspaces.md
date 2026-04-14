@@ -34,21 +34,27 @@ Stackydo stores tasks as plain markdown files in a workspace directory. You deci
 Stackydo decides which workspace to use based on this priority:
 
 1. **`$STACKYDO_DIR` env var** (highest). Overrides everything. Useful for one-off sessions.
-2. **`dir` field in `.stackydo-context`**. Resolved relative to the config file's location.
+2. **`dir` field in `stackydo.json`**. Resolved relative to the config file's location. Stackydo walks up from the current directory looking for `stackydo.json`, then falls back to `~/.stackydo.json`.
 3. **`~/.stackydo/`** (default). Used when nothing else is configured.
 
-## The `.stackydo-context` file
+## The `stackydo.json` file
 
-Drop a `.stackydo-context` file in your project root to configure workspace location and default context for new tasks:
+Drop a `stackydo.json` in your project root to configure the workspace location and default context for new tasks:
 
-```yaml
-dir: .stackydo-workspace
-project: my-app
-stack: dev
-description: Context captured on new tasks in this project
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/kythin/stackydo/main/schemas/stackydo.schema.json",
+  "dir": ".stackydo-workspace",
+  "context": {
+    "project": "my-app",
+    "description": "Context captured on new tasks in this project"
+  }
+}
 ```
 
-Stackydo walks up from the current directory looking for this file, falling back to `~/.stackydo-context`.
+You can also define workflows and per-stack workflow assignments here. See [`config.md`](config.md) for the complete reference and [`workflows.md`](workflows.md) for the workflow customisation guide.
+
+Stackydo walks up from the current directory looking for `stackydo.json`, falling back to `~/.stackydo.json` for global defaults.
 
 Use `stackydo context` to see which config file resolved and what context would be captured.
 
@@ -58,7 +64,7 @@ Use `stackydo context` to see which config file resolved and what context would 
 stackydo init --here --dir .stackydo-workspace
 ```
 
-This creates the `.stackydo-context` file and initialises the workspace directory.
+This creates a `stackydo.json` file and initialises the workspace directory.
 
 ## Multi-workspace
 
@@ -110,4 +116,4 @@ context:
 The login endpoint returns 500 when the token expires.
 ```
 
-The workspace also contains a `manifest.json` that tracks tags, stacks, the short ID counter, and workflow settings.
+The workspace also contains a `manifest.json` that tracks tags, stacks, and the short-ID counter. This file is internal state managed automatically — you should not hand-edit it. All user-facing configuration lives in [`stackydo.json`](config.md).
