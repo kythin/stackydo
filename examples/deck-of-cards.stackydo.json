@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/kythin/stackydo/main/schemas/stackydo.schema.json",
+  "dir": ".stackydo",
+  "stack_workflows": {
+    "cards": "deck"
+  }
+}
