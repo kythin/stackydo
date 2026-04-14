@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/kythin/stackydo/main/schemas/stackydo.schema.json",
+  "title": "Stackydo Config",
+  "description": "User-facing configuration for a stackydo project or workspace. Place as `stackydo.json` in your project root, or in your home directory as `~/.stackydo.json` for a global fallback. stackydo discovers the file by walking up from the current working directory and falling back to home. This is the only configuration file users need to edit; the workspace's `manifest.json` is internal state and managed automatically.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema URI (for editor autocompletion and validation)."
+    },
+    "dir": {
+      "type": "string",
+      "description": "Path to the task store directory, relative to this file. Overrides the STACKYDO_DIR environment variable. The directory will be created on first task save if it does not exist.",
+      "examples": [".stackydo", "../shared-tasks", "~/work-tasks"]
+    },
+    "stack_filter": {
+      "type": "string",
+      "description": "Glob pattern (supports `*` wildcards) limiting which stacks appear in list, stats, stacks, and search output. When absent, all stacks are shown. Does not restrict write access — for true isolation, use separate workspaces.",
+      "examples": ["work", "project-myapp_*", "*-dev", "sprint-*"]
+    },
+    "context": {
+      "type": "object",
+      "description": "Project context metadata captured into each task's `context` field at creation time. Useful for giving AI agents background about the project a task belongs to.",
+      "additionalProperties": false,
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "Human-readable project name.",
+          "examples": ["My App", "stackydo-cli"]
+        },
+        "repo": {
+          "type": "string",
+          "description": "Repository URL or identifier.",
+          "examples": ["https://github.com/org/repo", "github:org/repo"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Free-text notes captured as context when creating tasks. Useful for giving AI agents background about this project."
+        }
+      }
+    },
+    "workflow": {
+      "description": "Workspace default workflow. Replaces the built-in `kanban` workflow as the default for any stack that is not assigned a workflow in `stack_workflows`. Use this to define custom statuses or aliases that fit your team's process.\n\nWhen omitted, the built-in `kanban` workflow is used.",
+      "allOf": [
+        { "$ref": "#/definitions/workflowConfig" }
+      ]
+    },
+    "stack_workflows": {
+      "type": "object",
+      "description": "Per-stack workflow assignment. Keys are stack names; values are the names of built-in workflows. Stacks not listed here use the workspace default (`workflow` if set, otherwise `kanban`).\n\nMatching is case-insensitive. Currently supported workflow names: `kanban`, `deck`.",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["kanban", "deck"],
+        "description": "Name of a built-in workflow to apply to this stack."
+      },
+      "examples": [
+        { "ideas": "deck", "work": "kanban" },
+        { "playtest": "deck" }
+      ]
+    }
+  },
+  "definitions": {
+    "stage": {
+      "type": "string",
+      "enum": ["backlog", "active", "archive"],
+      "description": "Fixed lifecycle stage. Every task status maps to exactly one stage. The stage drives system behavior: `archive` tasks are hidden from list/search by default, `active` tasks are eligible for overdue calculation, etc."
+    },
+    "workflowConfig": {
+      "type": "object",
+      "description": "Maps user-defined status strings to fixed lifecycle stages. Use this to define a custom status set for your workspace (or for a single stack via `stack_workflows`).",
+      "additionalProperties": false,
+      "required": ["statuses"],
+      "properties": {
+        "statuses": {
+          "type": "object",
+          "description": "Map of status name → stage. The status name is what gets stored on each task (e.g. `\"todo\"`, `\"in_progress\"`). Each status must map to one of the three fixed stages: `backlog`, `active`, or `archive`. Define at least one status per stage you intend to use; at minimum, define one `backlog` status that new tasks can default to.",
+          "additionalProperties": {
+            "$ref": "#/definitions/stage"
+          },
+          "examples": [
+            {
+              "todo": "backlog",
+              "on_hold": "backlog",
+              "in_progress": "active",
+              "blocked": "active",
+              "in_review": "active",
+              "done": "archive",
+              "cancelled": "archive"
+            },
+            {
+              "icebox": "backlog",
+              "next": "backlog",
+              "doing": "active",
+              "shipped": "archive"
+            }
+          ]
+        },
+        "aliases": {
+          "type": "object",
+          "description": "Optional input aliases. Maps alias → canonical status name. Aliases are resolved on input (e.g. `stackydo update SD1 --status doing`) but tasks are stored under the canonical name. Useful for accepting common typos or shorthand.",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "examples": [
+            { "doing": "in_progress", "wip": "in_progress", "canceled": "cancelled" }
+          ]
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "$schema": "https://raw.githubusercontent.com/kythin/stackydo/main/schemas/stackydo.schema.json",
+      "dir": ".stackydo"
+    },
+    {
+      "$schema": "https://raw.githubusercontent.com/kythin/stackydo/main/schemas/stackydo.schema.json",
+      "dir": ".stackydo",
+      "context": {
+        "project": "My App",
+        "repo": "https://github.com/org/my-app",
+        "description": "Customer-facing web app. Tasks here usually relate to bug fixes or feature work in the main repo."
+      },
+      "stack_workflows": {
+        "ideas": "deck"
+      }
+    },
+    {
+      "$schema": "https://raw.githubusercontent.com/kythin/stackydo/main/schemas/stackydo.schema.json",
+      "workflow": {
+        "statuses": {
+          "icebox": "backlog",
+          "next": "backlog",
+          "doing": "active",
+          "review": "active",
+          "shipped": "archive",
+          "dropped": "archive"
+        },
+        "aliases": {
+          "wip": "doing",
+          "done": "shipped"
+        }
+      },
+      "stack_workflows": {
+        "playtest": "deck"
+      }
+    }
+  ]
+}
