@@ -142,7 +142,7 @@ Currently supported workflow names: **`kanban`** and **`deck`**. Matching is cas
   "dir": ".stackydo",
   "context": {
     "project": "stackydo-cli",
-    "repo": "github.com/kythin/stackydo-cli"
+    "repo": "github.com/kythin/stackydo"
   },
   "stack_workflows": {
     "ideas": "deck"
