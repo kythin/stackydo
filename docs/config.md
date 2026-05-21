@@ -1,6 +1,6 @@
 # Configuration: `stackydo.json`
 
-Stackydo has one user-facing configuration file: **`stackydo.json`**. Everything you might want to customise — the workspace location, the stack filter, project context, workflows, per-stack workflow assignments — lives here.
+Stackydo has one user-facing configuration file: **`stackydo.json`**. It holds everything you might want to customise: the workspace location, the stack filter, project context, workflows, and per-stack workflow assignments.
 
 The workspace's `manifest.json` is **internal state** managed automatically by stackydo. You should not hand-edit it.
 
@@ -10,7 +10,7 @@ When you run a stackydo command, it searches in this order:
 
 1. **Walk up from the current working directory** looking for a `stackydo.json` file. The first one found wins.
 2. **Fall back to `~/.stackydo.json`** (your home directory).
-3. **No file** — built-in defaults are used.
+3. **No file**: built-in defaults are used.
 
 This means you can put a project-specific `stackydo.json` next to a project's `.git`, and a global `~/.stackydo.json` for everywhere else.
 
@@ -59,7 +59,7 @@ Glob pattern (`*` wildcards) limiting which stacks appear in `list`, `stats`, `s
 { "stack_filter": "project-myapp_*" }
 ```
 
-This does **not** restrict write access — for true isolation, use separate workspaces.
+This does **not** restrict write access. For true isolation, use separate workspaces.
 
 ### `context`
 
