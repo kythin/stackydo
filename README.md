@@ -1,8 +1,14 @@
 # stackydo
 
-The most reliable task system I ever used was a stack of sticky notes on my desk. No app, no sync, no setup. Write it down, put it on the pile, work from the top. It survived years of trying every todo app, project board, and productivity system out there. Nothing stuck like the sticky notes did.
+**The shared task list for you and your AI agents.**
 
-Stackydo is that system, digitised. Tasks are plain markdown files. You organise them into named **stacks**, the same way you'd have separate piles on your desk for different projects or areas of your life. Everything lives in a single searchable store, and because it's all just files, any tool that can read text can work with your tasks.
+Every task is a plain markdown file with structured context, organised into named **stacks**, under a workflow that is semi-opinionated but flexible: usable as-is as a general development lifecycle, or tuned to how you actually work. Because tasks are just files, an agent can read your whole workload, pick up a task, update it, and hand it back through the same store you work from.
+
+It started as a stack of sticky notes. Across 20 years of building software, from solo freelance work to small product teams to large multi-department engineering orgs, that pile on the desk outlasted every todo app, project board, and productivity system I tried. It survived because it did one thing none of the others could: it only ever showed me one note. The stack could grow as deep as it liked, but a glance at the desk offered just the top of it. Complete tunnel vision of one achievable goal.
+
+That goal can sit at any altitude: "Automated UI testing for the website" might span a dozen Jira tickets, or the next note down might be a ten-minute fix. The stack does not care about the level, only the focus. Git issues, epics, roadmaps and strategy tooling still own the breadth and the long view. The stack holds the one thing you are pointed at right now. Scribble down a stray thought and jam it under the top note to handle next. Triage and reprioritise the pile when it needs it, then drop back into tunnel vision.
+
+I've rebuilt that idea many times since, on paper and on screen. stackydo is the version that stuck: one searchable store of plain files, no app to log into, no database, no lock-in.
 
 ## Where your tasks live
 
@@ -78,10 +84,24 @@ stackydo mcp-setup
 Or use npx in any MCP config without installing first:
 
 ```json
-{ "command": "npx", "args": ["-y", "@kythin/stackydo-mcp"] }
+{ "command": "npx", "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"] }
 ```
 
 For Claude Desktop, Cursor, VS Code, Codex, Windsurf, and manual config, see the [MCP Setup Guide](docs/mcp-setup.md).
+
+## Working with AI
+
+Early use taught me that stackydo works best with AI agents in the loop. A few patterns that have held up:
+
+**Pick the workspace to fit the work.** Keep a global store (`~/.stackydo/`) for cross-cutting tasks: admin, reminders, the things that belong to no single repo. For code, use a project workspace stored inside or alongside the repo, so tasks travel with the project. The same setup suits a monorepo, or a folder sitting above several clones that make up one system. See [Workspaces](docs/workspaces.md) for the placement options.
+
+**The files make sense with or without stackydo.** Tasks and their context are structured markdown, so any LLM can read a workspace and follow the same conventions even where stackydo is not installed. Where it is installed, the MCP tools do that same job far more cheaply in tokens, which adds up over a long session.
+
+**One task spine, many tools.** It does not try to be your only task system. Claude, Codex, and Gemini all ship capable task tracking of their own. What it adds is a shared spine. Switch tools without losing your place, or point several at the same workspace. If you run a single tool with agent-team support, that is usually the better setup: an orchestrator delegating work while sub-agents record their own progress in real time, with no long context handoffs in between.
+
+**WSL, made less painful.** If you develop on Windows through WSL, run the stackydo MCP server both inside WSL and on the Windows host. Your desktop app and your WSL environment then share one set of tasks and one context, instead of two disconnected worlds.
+
+For agent setup, MCP tools, and ready-made playbooks, see the [AI Agents guide](docs/ai-agents.md).
 
 ## Documentation
 
