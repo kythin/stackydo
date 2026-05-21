@@ -43,9 +43,9 @@ Tasks without a stack are unstacked and won't appear in stack-filtered results.
 
 ## Workflows
 
-Workflows define the statuses available to tasks and how they map to lifecycle stages (`backlog`, `active`, `archive`). Stackydo ships with two built-in workflows — `kanban` (default) and `deck` — and you can define custom statuses and per-stack assignments in [`stackydo.json`](config.md).
+Workflows define the statuses available to tasks and how they map to lifecycle stages (`backlog`, `active`, `archive`). Stackydo ships with two built-in workflows, `kanban` (default) and `deck`, and you can define custom statuses and per-stack assignments in [`stackydo.json`](config.md).
 
-For the complete guide — built-in workflows, custom workflows, per-stack assignment, index ordering, shuffle/draw, bulk-status, and cross-stack moves — see [**Workflows**](workflows.md).
+For the complete guide, see [**Workflows**](workflows.md): built-in workflows, custom workflows, per-stack assignment, index ordering, shuffle/draw, bulk-status, and cross-stack moves.
 
 Quick reference for the built-in `kanban` workflow:
 
