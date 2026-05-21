@@ -4,7 +4,7 @@ Importable and configuration examples you can drop into any stackydo workspace.
 
 ## `deck-of-cards.json`
 
-A full 52-card deck as importable tasks, all in the `cards` stack with status `deck`. Useful for trying out the `deck` workflow — draw cards into your hand, play them to the table, discard when done.
+A full 52-card deck as importable tasks, all in the `cards` stack with status `deck`. Useful for trying out the `deck` workflow: draw cards into your hand, play them to the table, and discard when done.
 
 ### Setup
 
