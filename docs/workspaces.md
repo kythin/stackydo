@@ -116,4 +116,4 @@ context:
 The login endpoint returns 500 when the token expires.
 ```
 
-The workspace also contains a `manifest.json` that tracks tags, stacks, and the short-ID counter. This file is internal state managed automatically — you should not hand-edit it. All user-facing configuration lives in [`stackydo.json`](config.md).
+The workspace also contains a `manifest.json` that tracks tags, stacks, and the short-ID counter. This file is internal state managed automatically, so you should not hand-edit it. All user-facing configuration lives in [`stackydo.json`](config.md).
