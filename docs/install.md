@@ -20,7 +20,7 @@ You can also use npx to run without installing (useful for MCP configs):
 
 ```bash
 npx -y @kythin/stackydo --version
-npx -y @kythin/stackydo-mcp
+npx -y --package @kythin/stackydo stackydo-mcp
 ```
 
 ## macOS
