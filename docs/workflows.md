@@ -2,7 +2,7 @@
 
 Stackydo separates **stages** (a fixed system concept) from **statuses** (user-defined). A workflow is the mapping from your statuses to stages.
 
-This split lets you customise the status names you work with (e.g. `icebox` / `wip` / `shipped`) while letting stackydo keep doing useful things behind the scenes — hiding archived tasks, filtering active work, computing overdue, etc.
+This split lets you customise the status names you work with (e.g. `icebox` / `wip` / `shipped`) while letting stackydo keep doing useful things behind the scenes, like hiding archived tasks, filtering active work, and computing overdue.
 
 ## Stages
 
@@ -50,8 +50,8 @@ Index sort factors: `created` only.
 
 All workflow configuration lives in [`stackydo.json`](config.md). There are two knobs:
 
-1. **`workflow`** — override the workspace default workflow.
-2. **`stack_workflows`** — assign specific stacks to a built-in workflow.
+1. **`workflow`**: override the workspace default workflow.
+2. **`stack_workflows`**: assign specific stacks to a built-in workflow.
 
 When stackydo needs to validate a status or compute a stage for a task, it resolves the workflow like this:
 
@@ -107,7 +107,7 @@ A few rules:
 
 - Status keys are case-insensitive on input but stored exactly as you write them.
 - Every status must map to `backlog`, `active`, or `archive`.
-- New tasks default to a `backlog` status — `todo` if you have one, otherwise the alphabetically first backlog status.
+- New tasks default to a `backlog` status: `todo` if you have one, otherwise the alphabetically first backlog status.
 - The literal status `deleted` is reserved. Use the `delete` command to remove tasks; you cannot transition a task into `deleted`.
 
 ### Combining `workflow` and `stack_workflows`
@@ -146,7 +146,7 @@ stackydo update SD1 --stack work --status in_progress
 
 ## Index ordering
 
-Tasks within the same `(stack, status)` group have an `index` field for positional ordering — `0` is the top of the pile. Stackydo maintains the indexes automatically:
+Tasks within the same `(stack, status)` group have an `index` field for positional ordering, where `0` is the top of the pile. Stackydo maintains the indexes automatically:
 
 - New tasks are appended at the end of their group.
 - When a task changes status or stack, the gap it left is closed and it is appended to the new group.
@@ -170,7 +170,7 @@ When stackydo needs to fully reindex a group (e.g. after a bulk operation), it s
 | `kanban` | `due`, then `priority`, then `created` |
 | `deck`   | `created` only                      |
 
-Custom workflows defined inline in `stackydo.json` use kanban's sort factors. If you need different factors for a custom workflow, that's currently a feature gap — open an issue.
+Custom workflows defined inline in `stackydo.json` use kanban's sort factors. If you need different factors for a custom workflow, that's currently a feature gap. Open an issue.
 
 ## Bulk status transitions
 
@@ -194,6 +194,6 @@ Available filters: `--stack`, `--tag`, `--priority`. The target status is valida
 
 ## See also
 
-- [`config.md`](config.md) — the full `stackydo.json` reference
-- [`cli-reference.md`](cli-reference.md) — every command at a glance
-- [`schemas/stackydo.schema.json`](../schemas/stackydo.schema.json) — JSON Schema for `stackydo.json`
+- [`config.md`](config.md): the full `stackydo.json` reference
+- [`cli-reference.md`](cli-reference.md): every command at a glance
+- [`schemas/stackydo.schema.json`](../schemas/stackydo.schema.json): JSON Schema for `stackydo.json`
