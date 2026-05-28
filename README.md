@@ -115,6 +115,19 @@ For agent setup, MCP tools, and ready-made playbooks, see the [AI Agents guide](
 | [Workspaces](docs/workspaces.md) | Storage modes, workspace discovery, multi-workspace, task format |
 | [AI Agents](docs/ai-agents.md) | Agent setup, MCP tools, playbooks for coding agents |
 
+## Claude Code plugins
+
+This repo also hosts the **stackydo marketplace** — Claude Code plugins that build on stackydo's MCP server.
+
+```
+/plugin marketplace add kythin/stackydo
+/plugin install delivery-workflow@stackydo
+```
+
+| Plugin | What it does |
+|--------|-------------|
+| [`delivery-workflow`](delivery-workflow/) | Opinionated delivery loop on top of stackydo — lifecycle, triage, sprint open/close, orchestration agents that delegate work. Ships stackydo as an MCP server automatically. |
+
 ## Issues & Feedback
 
 Found a bug or have a feature request? [Open an issue](https://github.com/kythin/stackydo/issues).

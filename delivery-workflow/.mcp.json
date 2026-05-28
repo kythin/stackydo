@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "stackydo": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"]
+    }
+  }
+}
