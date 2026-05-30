@@ -1,14 +1,14 @@
-# Delivery Workflow Plugin
+# Stackydo Flow Plugin
 
 An opinionated delivery loop for Claude Code, distilled from a real working monorepo. Covers task lifecycle, weekly triage, sprint open/close ritual with frozen plans, and orchestration agents that delegate implementation rather than doing it themselves.
 
 ## Dependencies (read this first)
 
-This plugin uses [stackydo](https://github.com/kythin/stackydo) as the task system. Every agent and command here calls `mcp__plugin_delivery-workflow_stackydo__*` tools directly — the dependency is load-bearing, not optional.
+This plugin uses [stackydo](https://github.com/kythin/stackydo) as the task system. Every agent and command here calls `mcp__plugin_stackydo-flow_stackydo__*` tools directly — the dependency is load-bearing, not optional.
 
 Stackydo is wired in **automatically** when you install the plugin. The plugin ships a `.mcp.json` that runs it via `npx --package @kythin/stackydo stackydo-mcp` — no separate install, no manual MCP config. The first invocation may take a moment while npx fetches the package; subsequent calls are fast.
 
-Tasks live in `./.stackydo/` at the root of whatever project you run Claude Code in. The first command (or `mcp__plugin_delivery-workflow_stackydo__create_task`) initialises that folder.
+Tasks live in `./.stackydo/` at the root of whatever project you run Claude Code in. The first command (or `mcp__plugin_stackydo-flow_stackydo__create_task`) initialises that folder.
 
 Sprint open/close additionally assumes a `docs/sprints/` folder convention (with a `_template.md` and an `archive/sprints/` location). The `/sprint-open` command will set this up on first use, but the structure is opinionated — read `skills/delivery-lifecycle/SKILL.md` to know what you're opting into.
 
@@ -50,7 +50,7 @@ Sprint open/close additionally assumes a `docs/sprints/` folder convention (with
 
 ```
 /plugin marketplace add kythin/kythin-claude-marketplace
-/plugin install delivery-workflow
+/plugin install stackydo-flow
 ```
 
 ## Conventions this plugin assumes

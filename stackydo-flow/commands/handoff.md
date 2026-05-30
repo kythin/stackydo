@@ -11,8 +11,8 @@ Before anything else, check whether the project has a `stackydo.json`. If not (a
 ## Step 1: List what's in flight
 
 ```
-mcp__plugin_delivery-workflow_stackydo__list_tasks status=in_progress
-mcp__plugin_delivery-workflow_stackydo__list_tasks status=blocked
+mcp__plugin_stackydo-flow_stackydo__list_tasks status=in_progress
+mcp__plugin_stackydo-flow_stackydo__list_tasks status=blocked
 ```
 
 - **One or more tasks in flight** → walk them in Step 2.
@@ -34,7 +34,7 @@ Then prompt for the handoff note via `AskUserQuestion`:
 > - **Skip** — leave this task untouched
 > - **Mark blocked** — for tasks that aren't actually in flight any more, capture the blocker reason in the note AND set `status=blocked` in the same call
 
-If the user adds a note, write it via `mcp__plugin_delivery-workflow_stackydo__add_comment` against that task. Prefix the comment with `Handoff <YYYY-MM-DD HH:MM>:` so the paper trail is scannable.
+If the user adds a note, write it via `mcp__plugin_stackydo-flow_stackydo__add_comment` against that task. Prefix the comment with `Handoff <YYYY-MM-DD HH:MM>:` so the paper trail is scannable.
 
 If the user said "Mark blocked", do both calls: add the comment AND `update_task <id> status=blocked`. Don't bury the status change inside a single tool call where it can fail silently.
 
@@ -130,7 +130,7 @@ If **Leave as-is**:
 Now that you know everything that happened (tasks walked, working tree handled, commits made), file ONE journal entry summarising the session:
 
 ```
-mcp__plugin_delivery-workflow_stackydo__create_task
+mcp__plugin_stackydo-flow_stackydo__create_task
   stack=journal
   tags=handoff
   status=todo
@@ -142,7 +142,7 @@ mcp__plugin_delivery-workflow_stackydo__create_task
 
 `Handoff <YYYY-MM-DD HH:MM> — <theme>`. The theme is a short summary inferred from the work: commit subjects, dominant task short_ids, sprint slug if active. Examples:
 
-- `Handoff 2026-05-27 14:30 — delivery-workflow v0.5.0 (journal stack)`
+- `Handoff 2026-05-27 14:30 — stackydo-flow v0.6.0 (journal stack)`
 - `Handoff 2026-05-27 — auth-revamp sprint, SD42 in review`
 - `Handoff 2026-05-27 — exploratory, no commits`
 
@@ -186,7 +186,7 @@ Then stop. No "want me to also…?" — the session is wrapping up by design.
 
 After Step 6 has filed the journal entry, the rest of the session operates in **journal-append mode**:
 
-- Any observation the agent makes that isn't actionable enough for `/log` and doesn't warrant a new task → `mcp__plugin_delivery-workflow_stackydo__add_comment` against the journal entry, with a short self-contained note (context + observation + why it might matter). The agent tells the user it did so in a brief one-liner, so the user knows the loose thread was captured.
+- Any observation the agent makes that isn't actionable enough for `/log` and doesn't warrant a new task → `mcp__plugin_stackydo-flow_stackydo__add_comment` against the journal entry, with a short self-contained note (context + observation + why it might matter). The agent tells the user it did so in a brief one-liner, so the user knows the loose thread was captured.
 - Genuine bugs → still go through `/log` (which routes to `triage,bug`). Don't put bug reports in the journal.
 - Actionable findings the user needs to decide on now → still surface verbally and ask. Journal-append is for things that *would have been verbal asides* and would otherwise be lost on window close.
 

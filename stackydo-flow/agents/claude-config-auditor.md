@@ -1,7 +1,7 @@
 ---
 name: claude-config-auditor
 description: Reviews and aligns the .claude/ orchestration tooling — agents (.claude/agents/*.md), slash commands (.claude/commands/*.md), and settings (.claude/settings.json). Trigger when the user says "audit the agents", "review the .claude folder", "are the agents aligned", "check the orchestration setup", "is the tooling drifting", or after a batch of new agents/commands land. Reports drift, contradictions, broken references, and tonal inconsistencies. Does NOT edit any of these files — review only; fixes are follow-up work.
-tools: Read, Grep, Glob, Bash, mcp__plugin_delivery-workflow_stackydo__create_task, mcp__plugin_delivery-workflow_stackydo__add_comment
+tools: Read, Grep, Glob, Bash, mcp__plugin_stackydo-flow_stackydo__create_task, mcp__plugin_stackydo-flow_stackydo__add_comment
 model: opus
 ---
 

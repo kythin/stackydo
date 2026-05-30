@@ -2,7 +2,9 @@
 
 Stackydo includes an MCP (Model Context Protocol) server that gives AI assistants full access to your task store. The `stackydo-mcp` binary communicates over stdio and works with any MCP-compatible client.
 
-**No install required.** With Node.js, you can use npx in any MCP config. Wherever you see `"command": "stackydo-mcp"` below, use `"command": "npx"` with `"args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"]` instead. (`@kythin/stackydo` is the published package; `stackydo-mcp` is the binary inside it.) This downloads the correct binary on first run and caches it.
+**The examples below use npx — no install required.** npx downloads the `@kythin/stackydo` package (which contains the `stackydo-mcp` binary) on first run and caches it. All you need is Node.js. First invocation may take a few seconds while npx fetches; subsequent calls are fast.
+
+If you prefer a permanent install for faster startup, run `npm install -g @kythin/stackydo` first, then replace `"command": "npx"` and its `"args"` in any example with the shorter `"command": "stackydo-mcp"`.
 
 ## Claude Code (CLI / VS Code / JetBrains)
 
@@ -26,7 +28,8 @@ stackydo mcp-setup --scope user       # available in all projects
   "mcpServers": {
     "stackydo": {
       "type": "stdio",
-      "command": "stackydo-mcp"
+      "command": "npx",
+      "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"]
     }
   }
 }
@@ -50,7 +53,8 @@ Add the `stackydo` entry under `mcpServers`:
 {
   "mcpServers": {
     "stackydo": {
-      "command": "stackydo-mcp"
+      "command": "npx",
+      "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"]
     }
   }
 }
@@ -62,7 +66,8 @@ To point at a specific task store:
 {
   "mcpServers": {
     "stackydo": {
-      "command": "stackydo-mcp",
+      "command": "npx",
+      "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"],
       "env": {
         "STACKYDO_DIR": "/path/to/your/tasks"
       }
@@ -81,7 +86,8 @@ Open **Settings > MCP**, or edit `.cursor/mcp.json` in your project root:
 {
   "mcpServers": {
     "stackydo": {
-      "command": "stackydo-mcp"
+      "command": "npx",
+      "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"]
     }
   }
 }
@@ -98,7 +104,8 @@ Add to your project's `.vscode/mcp.json` (or user settings):
   "servers": {
     "stackydo": {
       "type": "stdio",
-      "command": "stackydo-mcp"
+      "command": "npx",
+      "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"]
     }
   }
 }
@@ -114,7 +121,8 @@ Add to your project's `.codex/mcp.json`:
 {
   "mcpServers": {
     "stackydo": {
-      "command": "stackydo-mcp"
+      "command": "npx",
+      "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"]
     }
   }
 }
@@ -128,7 +136,8 @@ Open **Settings > MCP**, or edit `~/.codeium/windsurf/mcp_config.json`:
 {
   "mcpServers": {
     "stackydo": {
-      "command": "stackydo-mcp"
+      "command": "npx",
+      "args": ["-y", "--package", "@kythin/stackydo", "stackydo-mcp"]
     }
   }
 }

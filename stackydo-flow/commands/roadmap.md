@@ -49,7 +49,7 @@ If **EXISTS**, read it. Identify the headings for the five sections so you know 
 ## Step 2: List sprint-candidates
 
 ```
-mcp__plugin_delivery-workflow_stackydo__list_tasks stack=ideas tag=sprint-candidate
+mcp__plugin_stackydo-flow_stackydo__list_tasks stack=ideas tag=sprint-candidate
 ```
 
 Group them by their domain tag (the non-lifecycle tag — strip `draft`, `sprint-candidate`, and `deferred`; the remainder is the domain).

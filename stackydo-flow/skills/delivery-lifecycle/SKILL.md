@@ -1,7 +1,7 @@
 ---
 name: delivery-lifecycle
 description: >
-  The full task lifecycle for the delivery-workflow plugin — idea, triage, todo,
+  The full task lifecycle for the stackydo-flow plugin — idea, triage, todo,
   ready, in_progress, in_review, done, plus sprint-candidate, deferred, on_hold,
   blocked, cancelled. Trigger when the user asks "what status should this be",
   "how do I promote this", "move this to ready", "what's a sprint-candidate",
@@ -14,7 +14,7 @@ description: >
 
 # Delivery Lifecycle
 
-This skill encodes the full lifecycle used by the delivery-workflow plugin's agents and commands. It assumes [stackydo](https://github.com/kythin/stackydo) as the task system.
+This skill encodes the full lifecycle used by the stackydo-flow plugin's agents and commands. It assumes [stackydo](https://github.com/kythin/stackydo) as the task system.
 
 ## Why stack + tag, not status
 

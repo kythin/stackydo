@@ -24,7 +24,7 @@ State which repo will be used so the user can intervene if it picked wrong.
 Cheap things worth including:
 
 - **Stackydo version**: `npx --package @kythin/stackydo stackydo --version 2>&1 | head -3`. May be slow on a cold npx cache — if it takes more than 5 seconds, skip and note "version: unknown (npx cold)".
-- **Plugin identity**: this is the `delivery-workflow` plugin running stackydo via `npx --package @kythin/stackydo stackydo-mcp`. Include that one-liner.
+- **Plugin identity**: this is the `stackydo-flow` plugin running stackydo via `npx --package @kythin/stackydo stackydo-mcp`. Include that one-liner.
 - **OS/shell**: `uname -sr` and `$SHELL`. Don't fingerprint deeper.
 
 Do **not** include:
@@ -62,10 +62,10 @@ Use this shape:
 ## Environment
 
 - stackydo: `<version>`
-- Invoked via: `delivery-workflow` Claude Code plugin (`npx --package @kythin/stackydo stackydo-mcp`)
+- Invoked via: `stackydo-flow` Claude Code plugin (`npx --package @kythin/stackydo stackydo-mcp`)
 - OS: `<uname output>`
 
-<!-- Filed via /stackydo-issue from the delivery-workflow plugin. -->
+<!-- Filed via /stackydo-issue from the stackydo-flow plugin. -->
 ```
 
 If the user's one-liner clearly describes a feature request or expectation gap rather than a bug, retitle the first section to **What I expected** or **Suggestion** as appropriate. Don't force a bug-shaped issue when it isn't one.

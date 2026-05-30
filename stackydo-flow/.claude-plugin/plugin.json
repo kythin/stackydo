@@ -1,6 +1,6 @@
 {
-  "name": "delivery-workflow",
-  "version": "0.5.1",
+  "name": "stackydo-flow",
+  "version": "0.6.0",
   "description": "Opinionated delivery loop for Claude Code: stackydo-backed lifecycle (idea → triage → ready → in_progress → in_review → done), sprint open/close ritual with frozen plans, and orchestration agents that delegate implementation work.",
   "author": {
     "name": "Kythin",

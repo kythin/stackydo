@@ -49,14 +49,14 @@ A `stackydo.json` file at the project root tells stackydo which mode to use, and
 ## Install
 
 ```bash
-# npm (any platform)
-npm install -g @kythin/stackydo
+# npx — recommended, no install (any platform with Node.js)
+npx -y @kythin/stackydo --version
 
-# Homebrew (macOS / Linux)
-brew tap kythin/homebrew-tap && brew install stackydo
+# Or install globally for faster repeated CLI use
+npm install -g @kythin/stackydo
 ```
 
-This installs two binaries: `stackydo` (CLI) and `stackydo-mcp` (MCP server).
+Both paths provide two binaries: `stackydo` (CLI) and `stackydo-mcp` (MCP server).
 
 For shell/PowerShell installers, manual downloads, and other options, see the [Install Guide](docs/install.md).
 
@@ -121,12 +121,12 @@ This repo also hosts the **stackydo marketplace** — Claude Code plugins that b
 
 ```
 /plugin marketplace add kythin/stackydo
-/plugin install delivery-workflow@stackydo
+/plugin install stackydo-flow@stackydo
 ```
 
 | Plugin | What it does |
 |--------|-------------|
-| [`delivery-workflow`](delivery-workflow/) | Opinionated delivery loop on top of stackydo — lifecycle, triage, sprint open/close, orchestration agents that delegate work. Ships stackydo as an MCP server automatically. |
+| [`stackydo-flow`](stackydo-flow/) | Opinionated delivery loop on top of stackydo — lifecycle, triage, sprint open/close, orchestration agents that delegate work. Ships stackydo as an MCP server automatically. |
 
 ## Issues & Feedback
 
