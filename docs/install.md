@@ -2,9 +2,20 @@
 
 All install methods provide two binaries: `stackydo` (CLI) and `stackydo-mcp` (MCP server).
 
-## npm (recommended, any platform)
+## npx (recommended, any platform with Node.js)
 
-The quickest way to install on any OS with Node.js:
+Run on demand without installing — npx fetches the binaries on first use and caches them:
+
+```bash
+npx -y @kythin/stackydo --version
+npx -y --package @kythin/stackydo stackydo-mcp
+```
+
+This is the simplest path for MCP configs (point your client at `npx` with the args above — see [MCP Setup](mcp-setup.md)) and for one-off CLI use.
+
+## npm (global install)
+
+If you'll be running `stackydo` interactively many times a day, a global install avoids npx's startup overhead:
 
 ```bash
 npm install -g @kythin/stackydo
@@ -16,20 +27,7 @@ Update:
 npm update -g @kythin/stackydo
 ```
 
-You can also use npx to run without installing (useful for MCP configs):
-
-```bash
-npx -y @kythin/stackydo --version
-npx -y --package @kythin/stackydo stackydo-mcp
-```
-
 ## macOS
-
-**Homebrew**:
-
-```bash
-brew tap kythin/homebrew-tap && brew install stackydo
-```
 
 **Shell installer** (Apple Silicon and Intel):
 
@@ -40,12 +38,6 @@ curl --proto '=https' --tlsv1.2 -LsSf https://github.com/kythin/stackydo/release
 Binaries are installed to `~/.cargo/bin/`. The installer will prompt you to add it to your `PATH` if needed.
 
 ## Linux
-
-**Homebrew**:
-
-```bash
-brew tap kythin/homebrew-tap && brew install stackydo
-```
 
 **Shell installer** (x86_64 and aarch64):
 
@@ -78,11 +70,11 @@ powershell -ExecutionPolicy ByPass -c "irm https://github.com/kythin/stackydo/re
 ## Update
 
 ```bash
+# npx — force a fresh download (otherwise uses the cached version)
+npx -y @kythin/stackydo@latest --version
+
 # npm
 npm update -g @kythin/stackydo
-
-# Homebrew
-brew update && brew upgrade stackydo
 
 # Shell/PowerShell installer
 stackydo-update

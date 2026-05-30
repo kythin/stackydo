@@ -5,8 +5,8 @@
   },
   "plugins": [
     {
-      "name": "delivery-workflow",
-      "source": "./delivery-workflow",
+      "name": "stackydo-flow",
+      "source": "./stackydo-flow",
       "description": "Opinionated delivery loop — stackydo-backed lifecycle (idea → triage → ready → in_progress → in_review → done), sprint open/close ritual with frozen plans, and orchestration agents that delegate implementation. Ships stackydo as an MCP server.",
       "author": {
         "name": "Kythin"

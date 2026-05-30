@@ -51,7 +51,7 @@ body:
     attributes:
       label: Install method
       options:
-        - Homebrew
+        - npm
         - Shell installer (curl)
         - PowerShell installer
         - Other

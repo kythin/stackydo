@@ -19,7 +19,7 @@ Before anything else, check whether the project has a `stackydo.json`. If not (a
 
 ## Before doing anything
 
-1. **Confirm the sprint actually shipped (or was abandoned).** Read the sprint file. Walk the linked stackydo tasks (`mcp__plugin_delivery-workflow_stackydo__list_tasks` with `tag=sprint-<slug>`). If any are `in_progress` or `in_review`, surface them and refuse to close — the user either finishes them, demotes them out of the sprint, or signals they're abandoning.
+1. **Confirm the sprint actually shipped (or was abandoned).** Read the sprint file. Walk the linked stackydo tasks (`mcp__plugin_stackydo-flow_stackydo__list_tasks` with `tag=sprint-<slug>`). If any are `in_progress` or `in_review`, surface them and refuse to close — the user either finishes them, demotes them out of the sprint, or signals they're abandoning.
 2. **Verify architecture docs were updated** for the surfaces this sprint touched. Read the sprint file's "Architecture-doc follow-through" section (or equivalent). Spot-check that each cited doc was actually updated since the sprint opened (`git log -- <doc>` since the sprint's `Started:` date). If any aren't, **block the close** and file a `triage,bug` stackydo task under the docs stack for each missing update.
 3. **Carry-over items.** Anything in the sprint that didn't ship but is still wanted — promote it to a fresh stackydo task in its work stack (drop the `sprint-<slug>` tag). Don't leave dangling refs in the closed file.
 

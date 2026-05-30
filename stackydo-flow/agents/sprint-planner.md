@@ -1,7 +1,7 @@
 ---
 name: sprint-planner
 description: Drives pre-sprint plan-mode work for a theme. Use when the user says "plan the X sprint", "do plan-mode for the Y theme", "I need a frozen plan for Z", or whenever opening a sprint that needs more than two-tasks-worth of design exploration. Produces a frozen plan artefact at docs/sprints/plans/<slug>.md that the sprint file then defers to. Output is research + design, not code.
-tools: Read, Write, Edit, Grep, Glob, Bash, Agent, mcp__plugin_delivery-workflow_stackydo__list_tasks, mcp__plugin_delivery-workflow_stackydo__get_task, mcp__plugin_delivery-workflow_stackydo__search_tasks, mcp__plugin_delivery-workflow_stackydo__add_comment
+tools: Read, Write, Edit, Grep, Glob, Bash, Agent, mcp__plugin_stackydo-flow_stackydo__list_tasks, mcp__plugin_stackydo-flow_stackydo__get_task, mcp__plugin_stackydo-flow_stackydo__search_tasks, mcp__plugin_stackydo-flow_stackydo__add_comment
 model: opus
 ---
 

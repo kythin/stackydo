@@ -12,7 +12,7 @@ Before walking the queues, check whether the project has a `stackydo.json`. If n
 
 ## Queue 1: Triage-tagged bugs (agent-spotted, real, awaiting prioritisation)
 
-`mcp__plugin_delivery-workflow_stackydo__list_tasks` with `tag=triage`.
+`mcp__plugin_stackydo-flow_stackydo__list_tasks` with `tag=triage`.
 
 For each: title, priority (current best-guess), one-line summary of the claim. The call is:
 
@@ -22,7 +22,7 @@ For each: title, priority (current best-guess), one-line summary of the claim. T
 
 ## Queue 2: Ideas backlog (raw captures)
 
-`mcp__plugin_delivery-workflow_stackydo__list_tasks` with `stack=ideas` `tag=draft` — and **exclude `deferred`** (those are intentionally parked far-future ideas, surfacing them rots the queue). If the tool doesn't support exclusion in one call, filter the result.
+`mcp__plugin_stackydo-flow_stackydo__list_tasks` with `stack=ideas` `tag=draft` — and **exclude `deferred`** (those are intentionally parked far-future ideas, surfacing them rots the queue). If the tool doesn't support exclusion in one call, filter the result.
 
 For each: title, age, any comments. The call is:
 
@@ -33,7 +33,7 @@ For each: title, age, any comments. The call is:
 
 ## Queue 3: On-hold items (parked, may need reviving)
 
-`mcp__plugin_delivery-workflow_stackydo__list_tasks` with `status=on_hold`.
+`mcp__plugin_stackydo-flow_stackydo__list_tasks` with `status=on_hold`.
 
 For each: title, what was on hold for, how long it's been there. The call is:
 
