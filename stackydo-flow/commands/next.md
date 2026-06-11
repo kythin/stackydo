@@ -12,7 +12,7 @@ Before reading state, check whether the project has a `stackydo.json`. If not (a
 
 Run these in parallel (skip anything that depends on a folder that doesn't exist):
 
-1. **Active sprint?** `ls docs/sprints/*.md 2>/dev/null | grep -v _template` and `grep -l '^Status: active' docs/sprints/*.md 2>/dev/null`. Expect 0 or 1 (one-sprint-at-a-time invariant). If >1, the invariant is broken — surface that as the answer.
+1. **Active sprint?** `ls docs/sprints/*.md 2>/dev/null | grep -v _template` and `grep -lE '^(\*\*)?Status:(\*\*)? +active\b' docs/sprints/*.md 2>/dev/null` (regex tolerates both `Status: active` and `**Status:** active` formats). Expect 0 or 1 (one-sprint-at-a-time invariant). If >1, the invariant is broken — surface that as the answer.
 2. **In-progress tasks?** `mcp__plugin_stackydo-flow_stackydo__list_tasks status=in_progress`.
 3. **Active sprint task buckets?** If an active sprint exists, `mcp__plugin_stackydo-flow_stackydo__list_tasks tag=sprint-<slug>` and bucket by status.
 4. **Ready queue?** `mcp__plugin_stackydo-flow_stackydo__list_tasks stack=ready limit=3`.

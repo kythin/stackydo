@@ -11,7 +11,7 @@ Before anything else, check whether the project has a `stackydo.json`. If not (a
 
 ## Step 0: One-sprint-at-a-time invariant
 
-`grep -l '^Status: active' docs/sprints/*.md 2>/dev/null` — filter out `_template.md`. If `docs/sprints/` doesn't exist yet, this is the project's first sprint — skip the invariant check and continue.
+`grep -lE '^(\*\*)?Status:(\*\*)? +active\b' docs/sprints/*.md 2>/dev/null` (regex tolerates both `Status: active` and `**Status:** active` formats) — filter out `_template.md`. If `docs/sprints/` doesn't exist yet, this is the project's first sprint — skip the invariant check and continue.
 
 - **0 matches** → proceed.
 - **1 match, same slug as the requested slug** → refuse: "Sprint `<slug>` is already open at `<path>`. Append decisions to that file; don't reopen."

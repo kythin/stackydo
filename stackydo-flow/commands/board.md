@@ -16,7 +16,7 @@ Run in parallel:
 2. `mcp__plugin_stackydo-flow_stackydo__list_tasks` with `status=in_progress` — what's mid-flight.
 3. `mcp__plugin_stackydo-flow_stackydo__list_tasks` with `stack=ready` and `limit=5` — what's next.
 4. `mcp__plugin_stackydo-flow_stackydo__list_tasks` with `stack=journal`, `limit=1`, `sort=created`, `reverse=true` — the last handoff (so resume sessions land on context).
-5. `grep -l '^Status: active' docs/sprints/*.md 2>/dev/null` (filter out `_template.md`) — find the active sprint file (expect 0 or 1, per one-sprint-at-a-time). If `docs/sprints/` doesn't exist, skip this and treat as "no active sprint".
+5. `grep -lE '^(\*\*)?Status:(\*\*)? +active\b' docs/sprints/*.md 2>/dev/null` (filter out `_template.md`) — find the active sprint file (the regex tolerates both `Status: active` and `**Status:** active` formats) (expect 0 or 1, per one-sprint-at-a-time). If `docs/sprints/` doesn't exist, skip this and treat as "no active sprint".
 6. `git log --oneline -5` — what just landed.
 
 Then, **only if an active sprint was found**, run `mcp__plugin_stackydo-flow_stackydo__list_tasks tag=sprint-<slug>` and bucket by status.

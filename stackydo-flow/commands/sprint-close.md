@@ -12,7 +12,7 @@ Before anything else, check whether the project has a `stackydo.json`. If not (a
 ## Resolve the target sprint
 
 - **Slug passed** → resolve via `ls docs/sprints/*<slug>*.md`. If multiple match, ask; if none match, refuse with a useful error.
-- **No slug passed** → `grep -l '^Status: active' docs/sprints/*.md 2>/dev/null` (filter out `_template.md`):
+- **No slug passed** → `grep -lE '^(\*\*)?Status:(\*\*)? +active\b' docs/sprints/*.md 2>/dev/null` (regex tolerates both `Status: active` and `**Status:** active` formats; filter out `_template.md`):
   - **1 match** → use it. Print "Closing the active sprint: `<slug>`." and continue.
   - **0 matches** → refuse: "No active sprint to close. If you meant to archive an already-inactive file, pass the slug explicitly."
   - **>1 match** → refuse: "Invariant broken — multiple sprints are active (`<a>`, `<b>`). Pass the slug to disambiguate; fixing the invariant is a separate `/sprint-close` call."
