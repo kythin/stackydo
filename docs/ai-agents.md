@@ -36,6 +36,8 @@ For MCP configuration with other tools (Cursor, VS Code, Codex, Windsurf), see t
 | `shuffle` | Randomise task order in a stack+status group |
 | `draw` | Draw top task from one group and move to another |
 
+Every tool above except `list_workspaces` and `migrate_tasks` accepts an optional per-call `workspace` parameter — a path to a repo dir containing `stackydo.json`, a `stackydo.json` file, or a task store dir. Use it to target a specific project without changing the server's working directory; it's required when the server's cwd has several workspaces below it and none is chosen (see [Workspaces](workspaces.md#multi-workspace)).
+
 The server also exposes a `stackydo://guide` resource with a full agent guide, and prompt templates for triage, planning, and task extraction.
 
 ## How agents use it
