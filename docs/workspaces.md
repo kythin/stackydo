@@ -34,8 +34,11 @@ Stackydo stores tasks as plain markdown files in a workspace directory. You deci
 Stackydo decides which workspace to use based on this priority:
 
 1. **`$STACKYDO_DIR` env var** (highest). Overrides everything. Useful for one-off sessions.
-2. **`dir` field in `stackydo.json`**. Resolved relative to the config file's location. Stackydo walks up from the current directory looking for `stackydo.json`, then falls back to `~/.stackydo.json`.
-3. **`~/.stackydo/`** (default). Used when nothing else is configured.
+2. **`stackydo.json` in the current directory**.
+3. **`stackydo.json` found in a descendant** of the current directory (up to 3 levels down). If exactly one is found, it's used. If several are found, stackydo refuses and lists the candidates instead of guessing — see [Multi-workspace](#multi-workspace) below. Skipped in your home directory and at the filesystem root, so sitting in `~` still resolves to the global default store.
+4. **`dir` field in `stackydo.json`** found by walking up from the current directory.
+5. **`~/.stackydo.json`** (global fallback).
+6. **`~/.stackydo/`** (default). Used when nothing else is configured.
 
 ## The `stackydo.json` file
 
@@ -54,7 +57,7 @@ Drop a `stackydo.json` in your project root to configure the workspace location 
 
 You can also define workflows and per-stack workflow assignments here. See [`config.md`](config.md) for the complete reference and [`workflows.md`](workflows.md) for the workflow customisation guide.
 
-Stackydo walks up from the current directory looking for `stackydo.json`, falling back to `~/.stackydo.json` for global defaults.
+Stackydo looks in the current directory and its descendants (up to 3 levels down) before walking up, falling back to `~/.stackydo.json` for global defaults. See [Workspace resolution](#workspace-resolution) above for the full order.
 
 Use `stackydo context` to see which config file resolved and what context would be captured.
 
@@ -74,6 +77,10 @@ You can have as many workspaces as you like. Stackydo can discover and work acro
 stackydo list-workspaces        # find all workspaces on the system
 stackydo migrate SD1 --to ~/Code/other-project/.stackydo-workspace
 ```
+
+If a parent directory holds several project repos, each with its own `stackydo.json`, running a command from that parent won't guess which one you mean: it refuses and prints every candidate it found below the cwd. Run `stackydo list-workspaces` to see them, then either `cd` into the one you want (or set `STACKYDO_DIR`) for the CLI.
+
+For MCP agents, every tool except `list_workspaces` and `migrate_tasks` accepts a per-call `workspace` parameter — a path to a repo dir containing `stackydo.json`, a `stackydo.json` file itself, or a task store dir. Pass it to target a specific project without changing the server's cwd; it's required whenever several workspaces are found below the server's cwd. See [AI Agents](ai-agents.md) for the tool list.
 
 ## Context capture
 

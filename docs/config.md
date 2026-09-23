@@ -8,11 +8,13 @@ The workspace's `manifest.json` is **internal state** managed automatically by s
 
 When you run a stackydo command, it searches in this order:
 
-1. **Walk up from the current working directory** looking for a `stackydo.json` file. The first one found wins.
-2. **Fall back to `~/.stackydo.json`** (your home directory).
-3. **No file**: built-in defaults are used.
+1. **The current working directory** itself — a `stackydo.json` right there wins outright.
+2. **Descendants of the current directory**, up to 3 levels deep (skipping dotfiles/dirs, `node_modules`, `target`, `vendor`, `dist`, `build`). If exactly one `stackydo.json` is found below, it's used. If more than one is found, stackydo refuses and lists the candidates rather than silently picking one — pass `workspace` (MCP) or `cd` into the project / set `STACKYDO_DIR` (CLI) to disambiguate. See [Workspaces](workspaces.md#multi-workspace) for the multi-workspace details. This step is skipped in your home directory and at the filesystem root, so running stackydo from `~` keeps using the global `~/.stackydo/` store.
+3. **Walk up from the current working directory** looking for a `stackydo.json` file. The first one found wins.
+4. **Fall back to `~/.stackydo.json`** (your home directory).
+5. **No file**: built-in defaults are used.
 
-This means you can put a project-specific `stackydo.json` next to a project's `.git`, and a global `~/.stackydo.json` for everywhere else.
+This means you can put a project-specific `stackydo.json` next to a project's `.git`, and a global `~/.stackydo.json` for everywhere else. It also means that running stackydo from a parent directory containing several project repos will find configs *below* you before it walks up.
 
 You can see which file resolved with:
 
